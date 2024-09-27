@@ -1,3 +1,11 @@
+#!/usr/bin/env node
+
+// Othman4dev © 2024, All rights reserved.
+
+// Commix - A tool to generate random commits over a specified date range.
+
+// Import required modules
+
 import lodash from 'lodash';
 import dayjs from 'dayjs';
 import chalk from 'chalk';
@@ -35,6 +43,7 @@ function showAbout() {
 // Ask user for input
 function askQuestion(query) {
     return new Promise(resolve => {
+        // Display the query in magenta color
         const coloredQuery = chalk.magenta(query);
         rl.question(coloredQuery, resolve);
     });
@@ -74,6 +83,7 @@ const commitMessages = [
     "Fix broken pagination on search results"
 ];
 
+// Generate random JavaScript code snippets
 function generateRandomJSCode() {
     // List of keywords and patterns
     const names = ["handleClick", "fetchData", "processInput", "updateUI", "submitForm", "toggleMenu", "animateElement", "validateInput", "showMessage", "hideModal", "formatDate", "checkStatus", "loadData", "saveSettings", "renderList", "createChart", "displayError", "setCookie", "getLocalStorage", "setSessionStorage", "removeItem"];
@@ -165,6 +175,7 @@ function generateRandomJSCode() {
     return snippets[Math.floor(Math.random() * snippets.length)];
 }
 
+// Generate random package.json code for less suspicious commits
 function generateRandomJSON() {
     const packages = ["react", "express", "lodash", "axios", "moment", "nodemon", "webpack", "babel", "jest", "eslint", "prettier", "typescript", "mongodb", "mysql", "redis", "graphql", "socket.io", "aws-sdk", "firebase", "next.js", "gatsby", "vue", "angular", "svelte", "ember", "jest", "mocha", "chai", "sinon", "enzyme", "cypress", "puppeteer", "jasmine", "karma", "protractor", "nightwatch"];
     function randVersion() {
@@ -180,7 +191,8 @@ function generateRandomJSON() {
     return JSON.stringify({ dependencies }, null, 2);
 }
 
-// Create a simple Node.js app structure
+// The commitCount is not used here, but it could be useful for future enhancements
+// Create a simple Node.js app structure and files then put changes to them.
 function createAppStructure(commitCount) {
     const directories = ['src', 'tests', 'lib', 'config'];
     const files = [
@@ -191,10 +203,12 @@ function createAppStructure(commitCount) {
         { path: 'config/settings.json', content: `${generateRandomJSON()}` }
     ];
 
+    // Create directories and files
     directories.forEach(dir => {
         fs.mkdirSync(dir, { recursive: true });
     });
 
+    // Create files with random content
     files.forEach(file => {
         fs.writeFileSync(file.path, file.content);
     });
@@ -240,6 +254,7 @@ function showProgress(commitCount, totalCommits, percentage) {
         process.stdout.cursorTo(0);
 
         // Display the progress bar and percentage
+        // If the progress is 100%, show finalizing message
         if (percentage >= 100) {
             process.stdout.write(chalk.greenBright(`▻ Progress: [██████████████████████████] 100% (Finalizing...)`));
         } else {
@@ -250,13 +265,15 @@ function showProgress(commitCount, totalCommits, percentage) {
     return percentage;
 }
 
-// Simulate day commits
+// Simulate day commits, with random commit times and messages
 async function simulateDayCommits(date, numCommits, commitCount, totalCommits) {
     for (let i = 0; i < numCommits; i++) {
         const commitTime = dayjs(date).add(lodash.random(0, 23), 'hour').add(lodash.random(0, 59), 'minute').format();
         let randomIndex = lodash.random(0, commitMessages.length - 1);
         const commitMessage = commitMessages[randomIndex];
-        createAppStructure(commitCount); // Create app structure with the current commit count
+        // Create app structure and make a commit
+        createAppStructure(commitCount);
+        // Make a commit with the generated date and message
         if (makeCommit(commitTime, commitMessage)) {
             commitCount++;
         }
@@ -276,6 +293,7 @@ async function generateCommitsOverTime(startDate, endDate, minCommits, maxCommit
     if (totalDays > 30 * 6) {
         console.warn(chalk.yellow("⚠ Warning: Generating more than 6 months of commits may be slow.\n"));
     }
+    // Stop if exceeding limits
     if (totalDays > 365) {
         console.log(chalk.bgRed("⚠ Error: Cannot generate more than 1 year of commits a time.\n"));
         console.error(chalk.red("⚠ Please generate commits for a shorter time period.\n"));
@@ -334,19 +352,41 @@ function validateEmail(email) {
     }
 }
 
+function showEstimatedTime(estimatedTime) {
+    const minutes = Math.floor(estimatedTime / 60000); // Convert to minutes
+    const seconds = Math.floor((estimatedTime % 60000) / 1000); // Convert the remaining time to seconds
+
+    let timeMessage = `▻ This will take about `;
+    
+    if (minutes > 0) {
+        timeMessage += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+    
+    if (seconds > 0) {
+        timeMessage += `${minutes > 0 ? ' and ' : ''}${seconds} second${seconds > 1 ? 's' : ''}`;
+    }
+
+    timeMessage += `, please wait... ⌛\n`;
+    
+    console.log(chalk.yellowBright.italic(timeMessage));
+}
+
 
 // Main function
 async function main() {
+    // Display the welcome message
     showAbout();
 
     try {
-
+        // Display the login message
         console.log(chalk.magenta(`
         ░█    ░█▀▀▀█ ░█▀▀█ ▀█▀ ░█▄ ░█ 
         ░█    ░█  ░█ ░█ ▄▄ ░█  ░█░█░█ 
         ░█▄▄█ ░█▄▄▄█ ░█▄▄█ ▄█▄ ░█  ▀█
 
     If your login credentials are not correct, you will not be able to push commits to your repository.`));
+
+        // Ask the user for their GitHub username and email
 
         authorName = await askQuestion("\n▻ Enter your username on GitHub: ");
         validateUsername(authorName);
@@ -390,8 +430,11 @@ async function main() {
         const averageTimePerCommit = 200;
         const overheadTime = 0;
 
+        // Estimate the time required to generate commits, calculated in seconds by the logic : (totalCommits * averageTimePerCommit)
         const estimatedTime = (totalCommits * averageTimePerCommit) + overheadTime;
-        console.log(chalk.yellowBright.italic(`▻ This will take about ${(estimatedTime / 1000).toFixed(1)} - ${(estimatedTime + 5000 / 1000).toFixed(1) + } seconds, please wait... ⌛\n`));
+
+        // Show the estimated time to the user
+        showEstimatedTime(estimatedTime);
 
         await generateCommitsOverTime(startDate, endDate, minCommits, maxCommits);
 
