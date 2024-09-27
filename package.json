@@ -1,0 +1,19 @@
+{
+  "name": "commix",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A tool to generate random commits over a specified date range.",
+  "main": "src/index.js",
+  "scripts": {
+    "commix": "node run.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dayjs": "^1.10.7",
+    "lodash": "^4.17.21",
+    "ora": "^8.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
