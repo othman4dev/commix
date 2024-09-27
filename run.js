@@ -274,11 +274,11 @@ async function generateCommitsOverTime(startDate, endDate, minCommits, maxCommit
 
     // Warn if exceeding limits
     if (totalDays > 30 * 6) {
-        console.warn(chalk.yellow("\nWarning: Generating more than 6 months of commits may be slow."));
+        console.warn(chalk.yellow("⚠ Warning: Generating more than 6 months of commits may be slow.\n"));
     }
     if (totalDays > 365) {
-        console.log(chalk.bgRed("\nError: Cannot generate more than 1 year of commits a time."));
-        console.error(chalk.red("\nPlease generate commits for a shorter time period."));
+        console.log(chalk.bgRed("⚠ Error: Cannot generate more than 1 year of commits a time.\n"));
+        console.error(chalk.red("⚠ Please generate commits for a shorter time period.\n"));
         return;
     }
 
@@ -391,7 +391,7 @@ async function main() {
         const overheadTime = 0;
 
         const estimatedTime = (totalCommits * averageTimePerCommit) + overheadTime;
-        console.log(chalk.yellowBright.italic(`▻ This will take about ${(estimatedTime / 1000).toFixed(1)} - ${(estimatedTime / 1000).toFixed(1) + 5} seconds, please wait... ⌛\n`));
+        console.log(chalk.yellowBright.italic(`▻ This will take about ${(estimatedTime / 1000).toFixed(1)} - ${(estimatedTime + 5000 / 1000).toFixed(1) + } seconds, please wait... ⌛\n`));
 
         await generateCommitsOverTime(startDate, endDate, minCommits, maxCommits);
 
