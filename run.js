@@ -17,6 +17,7 @@ import ora from 'ora';
 let authorName = "";
 let authorEmail = "";
 let percentage = 0;
+let processStatus = false;
 
 // Setup user input
 const rl = readline.createInterface({
@@ -283,21 +284,25 @@ async function simulateDayCommits(date, numCommits, commitCount, totalCommits) {
 }
 
 // Generate commits over time
-async function generateCommitsOverTime(startDate, endDate, minCommits, maxCommits) {
+async function generateCommitsOverTime(startDate, endDate, minCommits, maxCommits, choice, commitLevel) {
 
     let currentDate = dayjs(startDate);
     const end = dayjs(endDate);
     const totalDays = end.diff(currentDate, 'days') + 1;
 
     // Warn if exceeding limits
-    if (totalDays > 30 * 6) {
-        console.warn(chalk.yellow("⚠ Warning: Generating more than 6 months of commits may be slow.\n"));
-    }
-    // Stop if exceeding limits
-    if (totalDays > 365) {
-        console.log(chalk.bgRed("⚠ Error: Cannot generate more than 1 year of commits a time.\n"));
-        console.error(chalk.red("⚠ Please generate commits for a shorter time period.\n"));
-        return;
+    if (totalDays > 730) {
+        let validation = await askQuestion(chalk.bgRed("⚠ Warning: Generating more than 2 year of commits might take a very long time. Are you sure you want to continue ? [yes/no] :") || 'yes');
+        if (validation.toLowerCase() !== 'yes' && validation.toLowerCase() !== 'y') {
+            return;
+        }
+    } else
+    if (totalDays > 31 * 6) {
+        console.warn();
+        let validation = await askQuestion(chalk.yellow("⚠ Warning: Generating more than 6 will take a while, are you sure you want to continue ? [yes/no]:") || 'yes');
+        if (validation.toLowerCase() !== 'yes' && validation.toLowerCase() !== 'y') {
+            return;
+        }
     }
 
     let totalCommits = 0;
@@ -310,11 +315,17 @@ async function generateCommitsOverTime(startDate, endDate, minCommits, maxCommit
 
     try {
         while (currentDate.isBefore(end) || currentDate.isSame(end)) {
-            const numCommits = lodash.random(minCommits, maxCommits);
-            commitCount = await simulateDayCommits(currentDate, numCommits, commitCount, totalCommits);
+            if (choice == 'realistic') {
+                const numCommits = parseInt(commitLevel[currentDate.day()], 10);
+                commitCount = await simulateDayCommits(currentDate, numCommits, commitCount, totalCommits);
+            } else {
+                const numCommits = lodash.random(minCommits, maxCommits);
+                commitCount = await simulateDayCommits(currentDate, numCommits, commitCount, totalCommits);
+            }
             currentDate = currentDate.add(1, 'day');
         }
     } finally {
+        processStatus = true;
         console.log(chalk.green('\n▻ Commits generated successfully ☑.'));
     }
     return totalCommits;
@@ -374,6 +385,9 @@ function showEstimatedTime(estimatedTime) {
 
 // Main function
 async function main() {
+    // Commit levels for realistic commit graph
+    const commitLevel = ['0', '0', '1', '0', '2', '0', '3', '4', '5', '6', '7', '8', '9', '10'];
+    let commitChoice = '';
     // Display the welcome message
     showAbout();
 
@@ -404,9 +418,11 @@ async function main() {
         let minCommits, maxCommits;
 
         if (realisticCommitChoice.toLowerCase() === 'yes' || realisticCommitChoice.toLowerCase() === 'y') {
+            commitChoice = 'realistic';
             minCommits = 0;
             maxCommits = 10;
         } else {
+            commitChoice = 'custom';
             minCommits = parseInt(await askQuestion("\n▻ Enter the minimum number of commits per day: "), 10);
             maxCommits = parseInt(await askQuestion("\n▻ Enter the maximum number of commits per day: "), 10);
         }
@@ -436,15 +452,23 @@ async function main() {
         // Show the estimated time to the user
         showEstimatedTime(estimatedTime);
 
-        await generateCommitsOverTime(startDate, endDate, minCommits, maxCommits);
+        await generateCommitsOverTime(startDate, endDate, minCommits, maxCommits, commitChoice, commitLevel);
 
         process.stdout.write('\x1Bc');
 
         if (autoPushChoice.toLowerCase() === 'yes' || autoPushChoice.toLowerCase() === 'y') {
-            execSync(`git push origin main`);
-            console.log(chalk.green("\n▻ Commits successfully pushed to your repository ☑"));
+            if (!processStatus) {
+                console.log(chalk.yellowBright("▻ No commits were generated !"));
+            } else {
+                execSync(`git push origin main`);
+                console.log(chalk.green("\n▻ Commits successfully pushed to your repository ☑"));
+            }
         } else {
-            console.log(chalk.yellowBright("▻ Commits were generated ☑, but not pushed !. You can push manually later by running: \n--\n\tgit push\n--"));
+            if (!processStatus) {
+                console.log(chalk.yellowBright("▻ No commits were generated !"));
+            } else {
+                console.log(chalk.yellowBright("▻ Commits were generated ☑, but not pushed !. You can push manually later by running: \n--\n\tgit push\n--"));
+            }
         }
     } catch (error) {
         console.error(chalk.red(error.message));
@@ -462,4 +486,3 @@ async function main() {
 }
 
 main();
-

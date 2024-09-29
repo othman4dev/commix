@@ -1,6 +1,6 @@
 {
   "name": "commix",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "A tool to generate random commits over a specified date range.",
   "main": "src/index.js",
