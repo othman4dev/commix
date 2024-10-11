@@ -1,15 +1,15 @@
 # COMMIX
 ### Commit Generator Tool
 
-![alt text](./images/logo.png)
+![Commix Logo](./images/logo.png)
 
 From This :
 
-![alt text](./images/emptygraph.png)
+![Empty Commit Graph](./images/emptygraph.png)
 
 To This :
 
-![alt text](./images/fullgraph.png)
+![Full Commit Graph](./images/fullgraph.png)
 
 #### Read this README to get started with the Commit Generator Tool COMMIX !
 
@@ -42,13 +42,13 @@ Before you begin, ensure you have the following installed:
 
 Go to your GitHub account and create a new empty repository.
 
-![alt text](./images/createrepository.png)
+![Create Repository](./images/createrepository.png)
 
 You can either create a public or private repository based on your preference.
 
 if you create a private repository, you will need to set the Private contributions on which above the commit graph in your profile.
 
-![alt text](./images/privateContributions.png)
+![Set Private Contributions to visible](./images/privateContributions.png)
 
 ### Clone the Repository:
 ```
